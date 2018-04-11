@@ -12,17 +12,13 @@ import com.demo.domain.User;
 import com.demo.domain.VerificationToken;
 import com.demo.service.UserService;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.ui.Model;
@@ -69,13 +65,11 @@ public class CreateUserAccount {
     RestTemplate restTemplate;
 
 
-   /* @Autowired
-    DiscoveryClient discoveryClient;
 
     @Autowired
-  ProductClient productClient;*/
+  ProductClient productClient;
 
-    @RequestMapping(value = URLMapping.REGISTRATION, method = RequestMethod.POST)
+    @RequestMapping(value = URLMapping.REGISTRATION, method = RequestMethod.POST )
     public ResponseEntity<Object> resgisterUserAccount(@Valid @RequestBody UserDto userDto, WebRequest request) {
 
         Map<String, Object> result = null;
@@ -221,9 +215,7 @@ public class CreateUserAccount {
 
 
     @GetMapping(URLMapping.Get_User)
-    public List<User> getAll(HttpServletRequest request) {
-
-
+    public List<User> getAll(HttpServletRequest request,HttpServletResponse response) {
         return userRepository.findAll();
 
     }
@@ -232,48 +224,26 @@ public class CreateUserAccount {
 
 
 
-   /* @GetMapping("/product/{name}")
-    ResponseEntity<Object> getProducts(@PathVariable  String name)
-    {
 
-       String uri=ServiceUrl().getHost().toString()+":";
-
-       uri+=ServiceUrl().getPort();
-
-        System.err.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++"+uri);
-        ResponseEntity<Product> itemResponseEntity=restTemplate.getForEntity("http://localhost:1118/api/product/{name}",Product.class,name);
-        System.err.println("+++++++++++++++-----------------------"+itemResponseEntity);
-        if (itemResponseEntity.getStatusCode()==HttpStatus.OK)
-        {
-
-            System.err.println("id : "+itemResponseEntity.getBody().getId());
-            System.err.println("Description : "+itemResponseEntity.getBody().getDescription());
-            System.err.println("code : "+itemResponseEntity.getBody().getCode());
-            System.err.println("name : "+itemResponseEntity.getBody().getName());
-            return new ResponseEntity<Object>(itemResponseEntity,HttpStatus.OK);
-
-
-        }
-        else
-            return new ResponseEntity<Object>(itemResponseEntity,HttpStatus.BAD_REQUEST);
-
-
+    @RequestMapping(value="/products",method = RequestMethod.GET)
+    public List<Object> greeting() {
+        return productClient.getStores();
     }
-*/
 
 
 
-   /* @RequestMapping(value="/products",method = RequestMethod.GET)
-    public List<Product> greeting() {
+   @RequestMapping(value = URLMapping.LOGOUT,method = RequestMethod.GET)
+    public ResponseEntity<Object> logout(HttpServletResponse response,HttpServletRequest request)
+   {
 
-System.err.println("+++++++++++++++++++++++ Client Communtications");
-        return productClient.getStores();   }
-
-
-*/
-
-
-
+String email=GenericUtils.getLoggedInUser();
+Map<String,Object> result=userService.logout(email,response);
+if (result.get("isSuccess").equals(true))
+{
+    return ResponseHandler.generateResponse(HttpStatus.OK,true,result.get("logout").toString(),result);
+}
+       return ResponseHandler.generateResponse(HttpStatus.BAD_GATEWAY,true,result.get("logout").toString(),result);
+   }
 
 
 
