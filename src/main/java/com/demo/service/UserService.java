@@ -345,6 +345,31 @@ public class UserService implements IUserService {
     }
 
 
+
+
+
+    public Map<String,Object> logout(String email,HttpServletResponse response)
+    {
+
+        User user1=userRepository.findByEmail(email);
+        Map<String,Object> result=new HashMap<>();
+
+        System.err.println(response.getHeader(SecurityContraint.HEADER_STRING));
+        if (response.getHeader(SecurityContraint.HEADER_STRING).equals("")) {
+
+            result.put("logout","User Logout Successfully");
+            result.put("data",user1);
+            result.put("isSuccess",true);
+            return result;
+        }
+        result.put("logout","User Logout failed");
+        result.put("data",null);
+        result.put("isSuccess",false);
+        return result;
+
+    }
+
+
     @Override
     public User getUser(String verificationToken) {
         User user = tokenRepository.findByToken(verificationToken).getUser();
